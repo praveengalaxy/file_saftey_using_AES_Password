@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypt/Decrypt Files - SecureCrypt</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #2ecc71;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(52, 152, 219, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(231, 76, 60, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .navbar {
+            background: rgba(44, 62, 80, 0.95) !important;
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--secondary-color) !important;
+            transform: translateY(-2px);
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            padding: 6rem 0 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') center/cover;
+            opacity: 0.1;
+            animation: pulse 20s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 1rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .operation-card {
+            border: none;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .operation-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .operation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+        }
+
+        .card-header {
+            background: none;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            border: 2px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .custom-file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .custom-file-upload:hover {
+            border-color: var(--secondary-color);
+            background: #f1f8ff;
+        }
+
+        .custom-file-upload i {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--secondary-color);
+            border: none;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            border: none;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+        }
+
+        .alert {
+            border: none;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .alert-danger {
+            background: #fff5f5;
+            color: #e74c3c;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            color: #2ecc71;
+        }
+
+        .footer {
+            background: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        .copyright {
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .drag-active {
+            border-color: var(--secondary-color);
+            background: #f1f8ff;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .file-info.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shield-alt me-2"></i>SecureCrypt
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#stats">Stats</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/encrypt-decrypt">Encrypt/Decrypt</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <div class="text-center" data-aos="fade-up">
+                <h1 class="page-title">Secure Your Files</h1>
+                <p class="page-subtitle">Choose an operation below to encrypt or decrypt your files</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert" data-aos="fade-down">
+                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row g-4">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="operation-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-lock me-2"></i>Encrypt File
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <form action="/encrypt" method="post" enctype="multipart/form-data" id="encryptForm">
+                            <div class="mb-4">
+                                <label class="form-label">Select File(s) to Encrypt</label>
+                                <div class="custom-file-upload" id="encryptDropZone">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p class="mb-0">Drag & drop your files here or click to browse</p>
+                                    <input type="file" class="form-control" id="encryptFile" name="file" multiple required style="display: none;">
+                                </div>
+                                <div class="file-info" id="encryptFileInfo"></div>
+                                <small class="text-muted">To encrypt a folder, please zip it first and upload the zip file.</small>
+                            </div>
+                            <div class="mb-4">
+                                <label for="encryptPassword" class="form-label">Enter Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="encryptPassword" name="password" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="toggleEncryptPassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Use a strong password to protect your file</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-lock me-2"></i>Encrypt File
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="operation-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-unlock me-2"></i>Decrypt File
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <form action="/decrypt" method="post" enctype="multipart/form-data" id="decryptForm">
+                            <div class="mb-4">
+                                <label class="form-label">Select Encrypted File(s)</label>
+                                <div class="custom-file-upload" id="decryptDropZone">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p class="mb-0">Drag & drop your encrypted files here or click to browse</p>
+                                    <input type="file" class="form-control" id="decryptFile" name="file" multiple required style="display: none;">
+                                </div>
+                                <div class="file-info" id="decryptFileInfo"></div>
+                                <small class="text-muted">To decrypt a folder, please upload the encrypted zip file.</small>
+                            </div>
+                            <div class="mb-4">
+                                <label for="decryptPassword" class="form-label">Enter Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="decryptPassword" name="password" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="toggleDecryptPassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Enter the password used for encryption</small>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-unlock me-2"></i>Decrypt File
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="copyright">
+                <p class="mb-0">&copy; 2024 SecureCrypt. All rights reserved. | Designed with <i class="fas fa-heart text-danger"></i> for security</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                document.querySelector('.navbar').style.padding = '0.5rem 0';
+            } else {
+                document.querySelector('.navbar').style.padding = '1rem 0';
+            }
+        });
+
+        // Password toggle functionality
+        document.getElementById('toggleEncryptPassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('encryptPassword');
+            const icon = this.querySelector('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+
+        document.getElementById('toggleDecryptPassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('decryptPassword');
+            const icon = this.querySelector('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+
+        // File upload handling
+        function setupFileUpload(dropZoneId, fileInputId, fileInfoId) {
+            const dropZone = document.getElementById(dropZoneId);
+            const fileInput = document.getElementById(fileInputId);
+            const fileInfo = document.getElementById(fileInfoId);
+
+            dropZone.addEventListener('click', () => fileInput.click());
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-active');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('drag-active');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-active');
+                fileInput.files = e.dataTransfer.files;
+                updateFileInfo(fileInput, fileInfoId);
+            });
+
+            fileInput.addEventListener('change', () => {
+                updateFileInfo(fileInput, fileInfoId);
+            });
+        }
+
+        function updateFileInfo(input, infoId) {
+            const infoDiv = document.getElementById(infoId);
+            if (input.files.length > 0) {
+                let html = '<strong>Selected file(s):</strong><ul>';
+                for (let i = 0; i < input.files.length; i++) {
+                    html += `<li>${input.files[i].name}</li>`;
+                }
+                html += '</ul>';
+                infoDiv.innerHTML = html;
+                infoDiv.classList.add('active');
+            } else {
+                infoDiv.innerHTML = '';
+                infoDiv.classList.remove('active');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileUpload('encryptDropZone', 'encryptFile', 'encryptFileInfo');
+            setupFileUpload('decryptDropZone', 'decryptFile', 'decryptFileInfo');
+        });
+    </script>
+</body>
+</html>
